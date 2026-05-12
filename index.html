@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
@@ -192,7 +192,7 @@
         const showAnswerBtn = document.getElementById("showAnswerBtn");
         const rememberBtn = document.getElementById("rememberBtn");
         const forgetBtn = document.getElementById("forgetBtn");
-        const nextQuestionBtn = document.getElementById("nextQuestionBtn");
+       
 
 
         // ===============================
@@ -744,15 +744,7 @@
             forgetBtn.textContent = "下一題";
         });
 
-        nextQuestionBtn.addEventListener("click", function () {
-            if (currentQuizIndex === -1) {
-                alert("請先按「開始背單字」！");
-                return;
-            }
-
-            nextQuiz();
-        });
-
+        
 
         // ===============================
         // 16. 頁面一打開就先執行
