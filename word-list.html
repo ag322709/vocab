@@ -123,6 +123,7 @@
             <div id="wordList" class="word-list">
                 <!-- 單字會顯示在這裡 -->
             </div>
+            <div id="pagination" class="pagination"></div>
         </section>
 
         <!-- 背單字區 -->
@@ -179,6 +180,7 @@
         const searchInput = document.getElementById("searchInput");
         const searchCategoryInput = document.getElementById("searchCategoryInput");
         const wordList = document.getElementById("wordList");
+        const pagination = document.getElementById("pagination");
         const showAllBtn = document.getElementById("showAllBtn");
         const showStarBtn = document.getElementById("showStarBtn");
         const deleteAllBtn = document.getElementById("deleteAllBtn");
@@ -218,6 +220,9 @@
         let filterMode = "all";
         let editingId = null;
         let hasMarkedForget = false;
+
+        let currentPage = 1;
+        let pageSize = 10;
 
         function getVocabStorageKey() {
             return "vocabList_" + currentMode;
@@ -460,10 +465,23 @@
 
             if (filteredList.length === 0) {
                 wordList.innerHTML = "<p class='empty-text'>目前沒有單字</p>";
+                pagination.innerHTML = "";
                 return;
             }
 
-            filteredList.forEach(function (item) {
+            const totalPages = Math.ceil(filteredList.length / pageSize);
+
+            if (currentPage > totalPages) {
+                currentPage = totalPages;
+            }
+
+            const startIndex = (currentPage - 1) * pageSize;
+            const endIndex = startIndex + pageSize;
+            const pageList = filteredList.slice(startIndex, endIndex);
+
+            renderPagination(totalPages);
+
+            pageList.forEach(function (item) {
                 const div = document.createElement("div");
                 div.className = "word-item";
 
@@ -552,17 +570,112 @@
                 wordList.appendChild(div);
             });
         }
+        function renderPagination(totalPages) {
+            pagination.innerHTML = "";
 
+            if (totalPages <= 1) {
+                return;
+            }
+
+            const pageGroupSize = 10;
+
+            const currentGroup = Math.ceil(currentPage / pageGroupSize);
+            const startPage = (currentGroup - 1) * pageGroupSize + 1;
+            let endPage = currentGroup * pageGroupSize;
+
+            if (endPage > totalPages) {
+                endPage = totalPages;
+            }
+
+            // 第一頁
+            const firstBtn = document.createElement("button");
+            firstBtn.textContent = "第一頁";
+            firstBtn.disabled = currentPage === 1;
+            firstBtn.onclick = function () {
+                currentPage = 1;
+                renderWordList();
+            };
+            pagination.appendChild(firstBtn);
+
+            // 上一頁
+            const prevBtn = document.createElement("button");
+            prevBtn.textContent = "上一頁";
+            prevBtn.disabled = currentPage === 1;
+            prevBtn.onclick = function () {
+                currentPage--;
+                renderWordList();
+            };
+            pagination.appendChild(prevBtn);
+
+            // 上一組
+            const prevGroupBtn = document.createElement("button");
+            prevGroupBtn.textContent = "前10頁";
+            prevGroupBtn.disabled = startPage === 1;
+            prevGroupBtn.onclick = function () {
+                currentPage = startPage - 1;
+                renderWordList();
+            };
+            pagination.appendChild(prevGroupBtn);
+
+            // 頁碼：一次只顯示 10 個
+            for (let i = startPage; i <= endPage; i++) {
+                const pageBtn = document.createElement("button");
+                pageBtn.textContent = i;
+
+                if (i === currentPage) {
+                    pageBtn.classList.add("active-page");
+                }
+
+                pageBtn.onclick = function () {
+                    currentPage = i;
+                    renderWordList();
+                };
+
+                pagination.appendChild(pageBtn);
+            }
+
+            // 下一組
+            const nextGroupBtn = document.createElement("button");
+            nextGroupBtn.textContent = "後10頁";
+            nextGroupBtn.disabled = endPage === totalPages;
+            nextGroupBtn.onclick = function () {
+                currentPage = endPage + 1;
+                renderWordList();
+            };
+            pagination.appendChild(nextGroupBtn);
+
+            // 下一頁
+            const nextBtn = document.createElement("button");
+            nextBtn.textContent = "下一頁";
+            nextBtn.disabled = currentPage === totalPages;
+            nextBtn.onclick = function () {
+                currentPage++;
+                renderWordList();
+            };
+            pagination.appendChild(nextBtn);
+
+            // 最後一頁
+            const lastBtn = document.createElement("button");
+            lastBtn.textContent = "最後一頁";
+            lastBtn.disabled = currentPage === totalPages;
+            lastBtn.onclick = function () {
+                currentPage = totalPages;
+                renderWordList();
+            };
+            pagination.appendChild(lastBtn);
+        }
 
         // ===============================
         // 8. 搜尋單字 刪除單字
         // ===============================
 
         searchInput.addEventListener("input", function () {
+            currentPage = 1;
             renderWordList();
         });
-        showAllBtn.addEventListener("click", function () {
-            filterMode = "all";
+        showStarBtn.addEventListener("click", function () {
+            filterMode = "star";
+            currentPage = 1;
             renderWordList();
         });
 
@@ -571,6 +684,7 @@
             renderWordList();
         });
         searchCategoryInput.addEventListener("change", function () {
+            currentPage = 1;
             renderWordList();
         });
         deleteAllBtn.addEventListener("click", function () {

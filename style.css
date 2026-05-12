@@ -1,4 +1,44 @@
 ﻿/* ===============================
+   分頁按鈕
+================================ */
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 24px;
+}
+
+    .pagination button {
+        min-width: 40px;
+        padding: 8px 12px;
+        border-radius: 8px;
+        background: #d9e8f8;
+        color: #1f3f63;
+        font-weight: bold;
+    }
+
+        .pagination button:hover {
+            background: #bdd7f0;
+        }
+
+        .pagination button.active-page {
+            background: #6f9fd1;
+            color: white;
+        }
+
+        .pagination button:disabled {
+            background: #e5edf5;
+            color: #99a8b8;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+
+
+/* ===============================
    全站基本設定
 ================================ */
 
