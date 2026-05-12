@@ -1,79 +1,5 @@
 ﻿/* ===============================
-   模式選擇首頁
-================================ */
-
-.mode-page {
-    min-height: 100vh;
-    background: linear-gradient(135deg, #eaf4ff, #f8fbff);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 24px;
-}
-
-.mode-card {
-    width: 100%;
-    max-width: 520px;
-    background: #ffffff;
-    border: 1px solid #dbeafe;
-    border-radius: 20px;
-    padding: 42px 34px;
-    text-align: center;
-    box-shadow: 0 18px 40px rgba(30, 64, 100, 0.12);
-}
-
-    .mode-card h1 {
-        margin-top: 0;
-        margin-bottom: 12px;
-        color: #163b63;
-        font-size: 32px;
-    }
-
-    .mode-card p {
-        margin-bottom: 28px;
-        color: #64748b;
-        font-size: 16px;
-    }
-
-.mode-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-}
-
-    .mode-buttons button {
-        width: 100%;
-        padding: 16px;
-        font-size: 17px;
-        background: #2f6fa7;
-    }
-
-        .mode-buttons button:hover {
-            background: #255b89;
-        }
-
-.back-mode-btn {
-    margin-bottom: 22px;
-    background: #e8f1fb;
-    color: #1e4f7a;
-    border: 1px solid #bdd7ef;
-}
-
-    .back-mode-btn:hover {
-        background: #d8eafd;
-        color: #163b63;
-    }
-
-/* 保險：hidden 一定要放後面 */
-.hidden {
-    display: none !important;
-}
-
-
-
-
-/* ===============================
-   全域設定
+   全站基本設定
 ================================ */
 
 * {
@@ -82,485 +8,198 @@
 
 body {
     margin: 0;
-    font-family: "Microsoft JhengHei", "Segoe UI", Arial, sans-serif;
-    background: #f3f7fb;
-    color: #1f2937;
+    font-family: "Microsoft JhengHei", Arial, sans-serif;
+    background: linear-gradient(135deg, #eef4fb, #f8fbff);
+    color: #243447;
 }
 
-
 /* ===============================
-   主容器
+   共用
 ================================ */
 
-.app {
-    width: 90%;
-    max-width: 1100px;
-    margin: 40px auto;
+.hidden {
+    display: none !important;
+}
+
+h1, h2, h3, p {
+    margin-top: 0;
 }
 
 h1 {
-    margin-bottom: 8px;
-    color: #163b63;
-    font-size: 32px;
+    color: #1f3f63;
     letter-spacing: 1px;
 }
 
-.subtitle {
-    margin-bottom: 28px;
-    color: #64748b;
-    font-size: 15px;
+h2 {
+    color: #27496d;
+    font-size: 22px;
+    border-left: 5px solid #7aa7d9;
+    padding-left: 12px;
+    margin-bottom: 20px;
 }
 
+button,
+.btn,
+.import-label {
+    border: none;
+    background: #6f9fd1;
+    color: white;
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-size: 15px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: 0.2s;
+}
+
+    button:hover,
+    .btn:hover,
+    .import-label:hover {
+        background: #5b8ec2;
+        transform: translateY(-1px);
+    }
+
+    button:active,
+    .btn:active,
+    .import-label:active {
+        transform: translateY(0);
+    }
 
 /* ===============================
-   卡片區塊
+   模式選擇首頁
+================================ */
+
+.mode-page {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.mode-card {
+    width: 100%;
+    max-width: 520px;
+    background: white;
+    border-radius: 24px;
+    padding: 45px 35px;
+    text-align: center;
+    box-shadow: 0 20px 45px rgba(31, 63, 99, 0.15);
+}
+
+    .mode-card h1 {
+        font-size: 34px;
+        margin-bottom: 12px;
+    }
+
+    .mode-card p {
+        color: #61748a;
+        margin-bottom: 30px;
+    }
+
+.mode-buttons {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+    .mode-buttons button {
+        min-width: 180px;
+        padding: 14px 20px;
+        font-size: 16px;
+    }
+
+/* ===============================
+   主畫面
+================================ */
+
+.app {
+    width: 92%;
+    max-width: 980px;
+    margin: 40px auto;
+    padding-bottom: 50px;
+}
+
+    .app > h1 {
+        margin-bottom: 8px;
+    }
+
+.subtitle {
+    color: #6b7f95;
+    margin-bottom: 20px;
+}
+
+.back-mode-btn {
+    background: #8797a8;
+    margin-bottom: 16px;
+}
+
+    .back-mode-btn:hover {
+        background: #748596;
+    }
+
+/* 上方連結按鈕 */
+#goWordListBtn,
+#goHomeBtn {
+    margin-left: 10px;
+    margin-bottom: 16px;
+}
+
+/* ===============================
+   卡片
 ================================ */
 
 .card {
-    background: #ffffff;
-    border: 1px solid #dbe5ef;
-    border-radius: 14px;
-    padding: 24px;
-    margin-bottom: 22px;
-    box-shadow: 0 8px 20px rgba(30, 64, 100, 0.08);
+    background: white;
+    border-radius: 18px;
+    padding: 26px;
+    margin-bottom: 26px;
+    box-shadow: 0 10px 28px rgba(31, 63, 99, 0.1);
+    border: 1px solid #e3edf7;
 }
-
-    .card h2 {
-        margin-top: 0;
-        margin-bottom: 20px;
-        color: #1e4f7a;
-        font-size: 22px;
-        border-left: 5px solid #4f8fcf;
-        padding-left: 12px;
-    }
-
 
 /* ===============================
    表單
 ================================ */
 
 .form-row {
-    margin-bottom: 16px;
+    margin-bottom: 18px;
 }
 
     .form-row label {
         display: block;
-        margin-bottom: 7px;
-        color: #334155;
-        font-weight: 600;
-        font-size: 14px;
+        font-weight: bold;
+        color: #344e68;
+        margin-bottom: 8px;
     }
 
 input,
 select {
     width: 100%;
     padding: 11px 13px;
-    border: 1px solid #cbd5e1;
-    border-radius: 9px;
+    border: 1px solid #c9d7e6;
+    border-radius: 10px;
     font-size: 15px;
-    background: #ffffff;
-    color: #1f2937;
     outline: none;
-    transition: 0.2s;
+    background: #fbfdff;
+    color: #243447;
 }
 
     input:focus,
     select:focus {
-        border-color: #4f8fcf;
-        box-shadow: 0 0 0 3px rgba(79, 143, 207, 0.18);
-    }
-
-    input::placeholder {
-        color: #94a3b8;
-    }
-
-
-/* ===============================
-   按鈕
-================================ */
-
-button {
-    border: none;
-    border-radius: 9px;
-    padding: 10px 16px;
-    background: #2f6fa7;
-    color: #ffffff;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: 0.2s;
-}
-
-    button:hover {
-        background: #255b89;
-        transform: translateY(-1px);
-    }
-
-    button:active {
-        transform: translateY(0);
-    }
-
-#addBtn {
-    width: 100%;
-    margin-top: 6px;
-    padding: 12px;
-    font-size: 15px;
-}
-
-
-/* ===============================
-   單字列表
-================================ */
-
-.word-list {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-}
-
-.word-item {
-    display: flex;
-    justify-content: space-between;
-    gap: 18px;
-    padding: 18px;
-    border: 1px solid #dce7f2;
-    border-radius: 12px;
-    background: #f8fbff;
-    transition: 0.2s;
-}
-
-    .word-item:hover {
-        background: #eef6ff;
-        border-color: #b7d4ef;
-    }
-
-.word-info h3 {
-    margin: 0 0 10px;
-    color: #14395f;
-    font-size: 22px;
-}
-
-.word-info p {
-    margin: 5px 0;
-    color: #475569;
-    font-size: 14px;
-}
-
-.word-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    min-width: 110px;
-}
-
-    .word-actions button {
-        width: 100%;
-        padding: 9px 12px;
-    }
-
-        .word-actions button:last-child {
-            background: #c2410c;
-        }
-
-            .word-actions button:last-child:hover {
-                background: #9a3412;
-            }
-
-.empty-text {
-    padding: 20px;
-    text-align: center;
-    color: #64748b;
-    background: #f8fafc;
-    border: 1px dashed #cbd5e1;
-    border-radius: 10px;
-}
-
-
-/* ===============================
-   背單字模式
-================================ */
-
-.quiz-box {
-    padding: 26px;
-    background: linear-gradient(135deg, #f8fbff, #eef6ff);
-    border: 1px solid #d7e6f5;
-    border-radius: 14px;
-    text-align: center;
-}
-
-.quiz-word {
-    margin: 0 0 16px;
-    font-size: 34px;
-    font-weight: 700;
-    color: #153e66;
-}
-
-.quiz-answer {
-    margin: 0 0 22px;
-    font-size: 17px;
-    color: #334155;
-    background: #ffffff;
-    border: 1px solid #dbeafe;
-    border-radius: 10px;
-    padding: 14px;
-}
-
-.hidden {
-    display: none;
-}
-
-.button-group {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 10px;
-}
-
-#showAnswerBtn {
-    background: #3b82b6;
-}
-
-    #showAnswerBtn:hover {
-        background: #2d6f9d;
-    }
-
-#rememberBtn {
-    background: #15803d;
-}
-
-    #rememberBtn:hover {
-        background: #166534;
-    }
-
-#forgetBtn {
-    background: #b91c1c;
-}
-
-    #forgetBtn:hover {
-        background: #991b1b;
-    }
-
-
-/* ===============================
-   RWD 手機版
-================================ */
-
-@media (max-width: 768px) {
-    .app {
-        width: 94%;
-        margin: 24px auto;
-    }
-
-    h1 {
-        font-size: 26px;
-    }
-
-    .card {
-        padding: 18px;
-    }
-
-    .word-item {
-        flex-direction: column;
-    }
-
-    .word-actions {
-        flex-direction: row;
-        width: 100%;
-    }
-
-    .quiz-word {
-        font-size: 28px;
-    }
-
-    .button-group button {
-        width: 100%;
-    }
-}
-
-.filter-buttons {
-    display: flex;
-    gap: 10px;
-    margin-top: 12px;
-}
-
-    .filter-buttons button {
-        background: #e8f1fb;
-        color: #1e4f7a;
-        border: 1px solid #bdd7ef;
-    }
-
-        .filter-buttons button:hover {
-            background: #d8eafd;
-        }
-
-/* ===============================
-   背單字彈窗
-================================ */
-
-.modal {
-    position: fixed;
-    inset: 0;
-    background: rgba(15, 23, 42, 0.55);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 999;
-    padding: 20px;
-}
-
-.modal-content {
-    position: relative;
-    width: 100%;
-    max-width: 560px;
-    background: #ffffff;
-    border-radius: 18px;
-    padding: 34px 28px 30px;
-    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.25);
-    text-align: center;
-    border: 1px solid #dbeafe;
-}
-
-    .modal-content h2 {
-        margin-top: 0;
-        color: #163b63;
-        font-size: 26px;
-    }
-
-.quiz-label {
-    margin-bottom: 10px;
-    color: #64748b;
-    font-size: 15px;
-}
-
-.close-btn {
-    position: absolute;
-    top: 14px;
-    right: 14px;
-    width: 34px;
-    height: 34px;
-    padding: 0;
-    border-radius: 50%;
-    background: #e2e8f0;
-    color: #334155;
-    font-size: 22px;
-    line-height: 34px;
-}
-
-    .close-btn:hover {
-        background: #cbd5e1;
-        color: #0f172a;
-    }
-
-.modal .quiz-word {
-    margin: 18px 0;
-    font-size: 42px;
-    font-weight: 800;
-    color: #153e66;
-}
-
-.modal .quiz-answer {
-    margin: 0 0 22px;
-    font-size: 17px;
-    color: #334155;
-    background: #f8fbff;
-    border: 1px solid #dbeafe;
-    border-radius: 10px;
-    padding: 14px;
-}
-
-/* 注意：這段要放在 modal 後面，才不會被 modal 的 display:flex 蓋掉 */
-.hidden {
-    display: none !important;
-}
-
-.edit-area {
-    width: 100%;
-}
-
-    .edit-area .form-row {
-        margin-bottom: 12px;
-    }
-
-.word-actions button:nth-child(2) {
-    background: #475569;
-}
-
-    .word-actions button:nth-child(2):hover {
-        background: #334155;
+        border-color: #78a9dc;
+        box-shadow: 0 0 0 3px rgba(120, 169, 220, 0.18);
     }
 
 /* ===============================
-   Excel 匯入匯出
+   分類下拉 + 刪除分類
 ================================ */
 
-.excel-buttons {
-    display: flex;
-    gap: 10px;
-    margin-top: 12px;
-    flex-wrap: wrap;
-}
-
-    .excel-buttons button,
-    .import-label {
-        border: none;
-        border-radius: 9px;
-        padding: 10px 16px;
-        background: #0f766e;
-        color: #ffffff;
-        font-size: 14px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: 0.2s;
-        display: inline-block;
-    }
-
-        .excel-buttons button:hover,
-        .import-label:hover {
-            background: #115e59;
-            transform: translateY(-1px);
-        }
-
-/* ===============================
-   單字列表固定高度，可自己滾動
-================================ */
-
-.word-list {
-    max-height: 520px;
-    overflow-y: auto;
-    padding-right: 8px;
-}
-
-    .word-list::-webkit-scrollbar {
-        width: 8px;
-    }
-
-    .word-list::-webkit-scrollbar-track {
-        background: #eef6ff;
-        border-radius: 99px;
-    }
-
-    .word-list::-webkit-scrollbar-thumb {
-        background: #9fc3e6;
-        border-radius: 99px;
-    }
-
-        .word-list::-webkit-scrollbar-thumb:hover {
-            background: #6fa3d8;
-        }
-.danger-btn {
-    background: #b91c1c !important;
-    color: #ffffff !important;
-    border: 1px solid #991b1b !important;
-}
-
-    .danger-btn:hover {
-        background: #991b1b !important;
-    }
-
-/* 分類下拉選單 + 小叉叉 */
 .category-row {
     display: flex;
-    gap: 8px;
+    gap: 10px;
     align-items: center;
 }
 
@@ -572,27 +211,23 @@ button {
     width: 42px;
     height: 42px;
     padding: 0;
-    border-radius: 9px;
-    background: #fef2f2;
-    color: #b91c1c;
-    border: 1px solid #fecaca;
-    font-size: 22px;
-    font-weight: 700;
+    border-radius: 50%;
+    background: #d96b6b;
+    font-size: 24px;
     line-height: 1;
 }
 
     .category-x-btn:hover {
-        background: #fee2e2;
-        color: #991b1b;
-        transform: none;
+        background: #c95656;
     }
+
 /* ===============================
-   搜尋列：關鍵字 + 類型
+   搜尋區
 ================================ */
 
 .search-row {
     display: flex;
-    gap: 14px;
+    gap: 18px;
     align-items: flex-end;
 }
 
@@ -604,7 +239,195 @@ button {
     flex: 1;
 }
 
+.filter-buttons,
+.excel-buttons {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+}
+
+.danger-btn {
+    background: #d96b6b;
+}
+
+    .danger-btn:hover {
+        background: #c95656;
+    }
+
+.import-label {
+    position: relative;
+}
+
+/* ===============================
+   單字列表
+================================ */
+
+.word-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.word-item {
+    background: #f8fbff;
+    border: 1px solid #dce8f5;
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    box-shadow: 0 6px 16px rgba(31, 63, 99, 0.06);
+}
+
+.word-info {
+    flex: 1;
+}
+
+    .word-info h3 {
+        color: #1f3f63;
+        font-size: 24px;
+        margin-bottom: 12px;
+    }
+
+    .word-info p {
+        color: #40576f;
+        margin: 6px 0;
+        line-height: 1.6;
+    }
+
+.word-actions {
+    min-width: 130px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: stretch;
+}
+
+    .word-actions button {
+        width: 100%;
+        padding: 9px 12px;
+    }
+
+/* 編輯狀態 */
+.edit-area {
+    background: white;
+    border-radius: 14px;
+    padding: 18px;
+    border: 1px solid #e1ebf5;
+}
+
+/* 沒有單字時 */
+.empty-text {
+    text-align: center;
+    color: #7b8fa5;
+    background: #f8fbff;
+    border: 1px dashed #b7cce2;
+    padding: 28px;
+    border-radius: 14px;
+}
+
+/* ===============================
+   背單字模式
+================================ */
+
+.quiz-box {
+    background: #f8fbff;
+    border: 1px solid #dce8f5;
+    border-radius: 16px;
+    padding: 24px;
+    text-align: center;
+}
+
+    .quiz-box p {
+        color: #5b7087;
+        margin-bottom: 18px;
+    }
+
+/* ===============================
+   彈窗
+================================ */
+
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(20, 39, 58, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    z-index: 999;
+}
+
+.modal-content {
+    width: 100%;
+    max-width: 560px;
+    background: white;
+    border-radius: 22px;
+    padding: 32px;
+    position: relative;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.22);
+}
+
+.close-btn {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    padding: 0;
+    background: #d96b6b;
+    font-size: 22px;
+}
+
+    .close-btn:hover {
+        background: #c95656;
+    }
+
+.quiz-label {
+    color: #60758c;
+}
+
+.quiz-word {
+    font-size: 36px;
+    font-weight: bold;
+    color: #1f3f63;
+    text-align: center;
+    margin: 24px 0;
+}
+
+.quiz-answer {
+    background: #f3f8fd;
+    border-left: 5px solid #7aa7d9;
+    padding: 16px;
+    border-radius: 10px;
+    color: #344e68;
+    line-height: 1.7;
+}
+
+.button-group {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 24px;
+}
+
+/* ===============================
+   RWD 手機版
+================================ */
+
 @media (max-width: 768px) {
+    .app {
+        width: 94%;
+        margin: 24px auto;
+    }
+
+    .card {
+        padding: 20px;
+    }
+
     .search-row {
         flex-direction: column;
         gap: 0;
@@ -613,5 +436,39 @@ button {
     .search-input-box,
     .search-category-box {
         width: 100%;
+    }
+
+    .word-item {
+        flex-direction: column;
+    }
+
+    .word-actions {
+        width: 100%;
+        min-width: 0;
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+        .word-actions button {
+            flex: 1;
+            min-width: 100px;
+        }
+
+    #goWordListBtn,
+    #goHomeBtn {
+        margin-left: 0;
+        margin-top: 8px;
+    }
+
+    .mode-card {
+        padding: 35px 24px;
+    }
+
+    .mode-buttons button {
+        width: 100%;
+    }
+
+    .quiz-word {
+        font-size: 30px;
     }
 }
