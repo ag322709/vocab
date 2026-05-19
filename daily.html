@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="utf-8">
+    <title>每日 10 單字</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app">
+        <h1 id="dailyTitle">每日 10 單字</h1>
+        <p class="subtitle">每天隨機練習 10 個單字，背完會記錄今日完成。</p>
+
+        <a href="index.html" class="btn">返回首頁</a>
+        <a href="word-list.html" class="btn">單字列表</a>
+
+        <section class="card">
+            <div class="word-list-header">
+                <h2>今日單字清單</h2>
+
+                <div class="word-list-filter-buttons">
+                    <button id="startQuizModalBtn">開始測驗</button>
+                </div>
+            </div>
+            <div id="dailyList" class="word-list"></div>
+        </section>
+
+        <section class="card hidden">
+            <h2>今日進度</h2>
+
+            <p id="dailyProgress">0 / 10</p>
+
+            <div class="quiz-box">
+                <p id="dailyWord" class="quiz-word">按下開始後產生今日單字</p>
+                <p id="dailyAnswer" class="quiz-answer hidden">答案會顯示在這裡</p>
+
+                <div class="button-group">
+                    <button id="startDailyBtn" class="hidden">開始今日單字</button>
+                    <button id="retryDailyBtn">重考今日 10 單字</button>
+                    <button id="showDailyAnswerBtn">顯示答案</button>
+                    <button id="dailyRememberBtn">我答對了</button>
+                    <button id="dailyForgetBtn">我答錯了</button>
+                </div>
+            </div>
+        </section>
+
+
+    </div>
+
+    <div id="dailyQuizModal" class="modal hidden">
+        <div class="modal-content">
+            <button id="closeDailyQuizBtn" class="close-btn">×</button>
+
+            <h2>每日 10 單字測驗</h2>
+            <p id="quizProgress" class="quiz-progress">第 1 / 10 題</p>
+            <p class="quiz-label">請想想這個英文單字的中文意思：</p>
+
+            <p id="modalQuizWord" class="quiz-word">目前還沒有題目</p>
+            <p id="modalQuizAnswer" class="quiz-answer hidden">答案會顯示在這裡</p>
+
+            <div class="button-group">
+                <button id="modalShowAnswerBtn">顯示答案</button>
+                <button id="modalCorrectBtn">我答對了</button>
+                <button id="modalWrongBtn">我答錯了</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        const dailyTitle = document.getElementById("dailyTitle");
+        const dailyProgress = document.getElementById("dailyProgress");
+        const dailyWord = document.getElementById("dailyWord");
+        const dailyAnswer = document.getElementById("dailyAnswer");
+        const dailyList = document.getElementById("dailyList");
+
+        const startDailyBtn = document.getElementById("startDailyBtn");
+        const showDailyAnswerBtn = document.getElementById("showDailyAnswerBtn");
+        const dailyRememberBtn = document.getElementById("dailyRememberBtn");
+        const dailyForgetBtn = document.getElementById("dailyForgetBtn");
+        const retryDailyBtn = document.getElementById("retryDailyBtn");
+        const startQuizModalBtn = document.getElementById("startQuizModalBtn");
+        const dailyQuizModal = document.getElementById("dailyQuizModal");
+        const closeDailyQuizBtn = document.getElementById("closeDailyQuizBtn");
+        const modalQuizWord = document.getElementById("modalQuizWord");
+        const quizProgress = document.getElementById("quizProgress");
+        const modalQuizAnswer = document.getElementById("modalQuizAnswer");
+        const modalShowAnswerBtn = document.getElementById("modalShowAnswerBtn");
+        const modalCorrectBtn = document.getElementById("modalCorrectBtn");
+        const modalWrongBtn = document.getElementById("modalWrongBtn");
+
+        let currentMode = localStorage.getItem("currentMode") || "";
+        let vocabList = [];
+        let todayWords = [];
+        let currentIndex = -1;
+
+        function getTodayText() {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, "0");
+            const day = String(today.getDate()).padStart(2, "0");
+
+            return year + "-" + month + "-" + day;
+        }
+
+        function getModeName() {
+            if (currentMode === "ielts") {
+                return "雅思 IELTS 單字";
+            }
+
+            if (currentMode === "toeic") {
+                return "多益 TOEIC 單字";
+            }
+
+            return "";
+        }
+
+        function getVocabStorageKey() {
+            return "vocabList_" + currentMode;
+        }
+
+        function getDailyStorageKey() {
+            return "dailyWords_" + currentMode + "_" + getTodayText();
+        }
+
+        function saveVocabList() {
+            localStorage.setItem(getVocabStorageKey(), JSON.stringify(vocabList));
+        }
+
+        function saveTodayWords() {
+            localStorage.setItem(getDailyStorageKey(), JSON.stringify(todayWords));
+        }
+
+        function loadData() {
+            if (currentMode === "") {
+                alert("請先回首頁選擇 IELTS 或 TOEIC 模式！");
+                location.href = "index.html";
+                return;
+            }
+
+            dailyTitle.textContent = "每日 10 單字 - " + getModeName();
+
+            let toeicList = JSON.parse(localStorage.getItem("vocabList_toeic")) || [];
+            let ieltsList = JSON.parse(localStorage.getItem("vocabList_ielts")) || [];
+
+            vocabList = toeicList.concat(ieltsList);
+
+            todayWords = JSON.parse(localStorage.getItem(getDailyStorageKey())) || [];
+
+            if (todayWords.length === 0) {
+                createTodayWords();
+            } else {
+                renderDailyList();
+                updateProgress();
+            }
+        }
+
+        function createTodayWords() {
+            if (vocabList.length === 0) {
+                alert("目前沒有單字，請先新增單字！");
+                return;
+            }
+
+            const shuffledList = vocabList
+                .slice()
+                .sort(function () {
+                    return Math.random() - 0.5;
+                });
+
+            todayWords = shuffledList.slice(0, 10).map(function (item) {
+                return {
+                    id: item.id,
+                    word: item.word,
+                    meaning: item.meaning,
+                    partOfSpeech: item.partOfSpeech,
+                    example: item.example,
+                    category: item.category,
+                    wrongCount: item.wrongCount,
+                    isDone: false,
+                    dailyStatus: ""
+                };
+            });
+
+            currentIndex = -1;
+
+            saveTodayWords();
+            renderDailyList();
+            updateProgress();
+            nextDailyWord();
+        }
+
+        function nextDailyWord() {
+            currentIndex = todayWords.findIndex(function (item) {
+                return item.isDone === false;
+            });
+
+            if (currentIndex === -1) {
+                dailyWord.textContent = "今天 10 個單字已經背完了！";
+                dailyAnswer.textContent = "很棒，明天再繼續練習新的 10 個單字。";
+                dailyAnswer.classList.remove("hidden");
+                return;
+            }
+
+            const item = todayWords[currentIndex];
+
+            dailyWord.textContent = item.word;
+            dailyAnswer.textContent =
+                "中文：" + item.meaning +
+                "　詞性：" + (item.partOfSpeech || "未設定") +
+                "　例句：" + (item.example || "尚未填寫");
+
+            dailyAnswer.classList.add("hidden");
+        }
+
+        function finishCurrentWord(isForget) {
+            if (currentIndex === -1 || todayWords.length === 0) {
+                alert("請先開始今日練習！");
+                return;
+            }
+
+            const todayItem = todayWords[currentIndex];
+
+            todayItem.isDone = true;
+            todayItem.dailyStatus = isForget ? "forgot" : "remembered";
+
+            const vocab = vocabList.find(function (item) {
+                return item.id === todayItem.id;
+            });
+
+            if (vocab) {
+                vocab.lastReviewDate = getTodayText();
+                vocab.reviewStatus = isForget ? "forgot" : "remembered";
+
+                if (isForget) {
+                    vocab.wrongCount = Number(vocab.wrongCount || 0) + 1;
+                }
+
+                saveVocabList();
+            }
+
+            saveTodayWords();
+            renderDailyList();
+            updateProgress();
+            nextDailyWord();
+        }
+
+        function updateProgress() {
+            const doneCount = todayWords.filter(function (item) {
+                return item.isDone === true;
+            }).length;
+
+            const totalCount = todayWords.length;
+
+            dailyProgress.textContent = doneCount + " / " + totalCount;
+
+            if (totalCount > 0 && doneCount === totalCount) {
+                dailyProgress.textContent = doneCount + " / " + totalCount + "　今日已完成";
+            }
+
+            if (totalCount > 0 && doneCount === totalCount) {
+                startDailyBtn.disabled = true;
+                dailyRememberBtn.disabled = true;
+                dailyForgetBtn.disabled = true;
+                showDailyAnswerBtn.disabled = true;
+            } else {
+                startDailyBtn.disabled = false;
+                dailyRememberBtn.disabled = false;
+                dailyForgetBtn.disabled = false;
+                showDailyAnswerBtn.disabled = false;
+            }
+        }
+
+        function renderDailyList() {
+            dailyList.innerHTML = "";
+
+            if (todayWords.length === 0) {
+                dailyList.innerHTML =
+                    "<div class='empty-text'>" +
+                    "<p>請點「開始今日練習」產生今日 10 單字</p>" +
+                    "<button onclick='createTodayWords()'>開始今日練習</button>" +
+                    "</div>";
+                return;
+            }
+
+            todayWords.forEach(function (item) {
+                const div = document.createElement("div");
+                div.className = "word-item";
+
+                if (item.dailyStatus === "remembered") {
+                    div.className += " daily-remembered";
+                }
+
+                if (item.dailyStatus === "forgot") {
+                    div.className += " daily-forgot";
+                }
+
+                div.innerHTML =
+                    "<label class='check-box'>" +
+                    "<input type='checkbox' " + (item.isDone ? "checked" : "") +
+                    " onchange='checkDailyWord(" + item.id + ", this.checked)'>" +
+                    "<span class='checkmark'></span>" +
+                    "</label>" +
+
+                    "<div class='word-info'>" +
+                    "<h3>" + item.word + "</h3>" +
+                    "<p>中文：" + item.meaning + "</p>" +
+                    "<p>詞性：" + (item.partOfSpeech || "未設定") + "</p>" +
+                    "<p>例句：" + (item.example || "尚未填寫") + "</p>" +
+                    "<p>分類：" + (item.category || "未分類") + "</p>" +
+                    "<p>忘記次數：" + Number(item.wrongCount || 0) + "</p>" +
+                    "<p>狀態：" + getDailyStatusText(item) + "</p>" +
+                    "</div>";
+
+                dailyList.appendChild(div);
+            });
+        }
+
+        function getDailyStatusText(item) {
+            if (item.dailyStatus === "remembered") {
+                return "✅ 已背過";
+            }
+
+            if (item.dailyStatus === "forgot") {
+                return "⚠️ 背過但忘記";
+            }
+
+            return "未完成";
+        }
+
+        startDailyBtn.addEventListener("click", function () {
+            if (todayWords.length > 0) {
+                nextDailyWord();
+                return;
+            }
+
+            createTodayWords();
+        });
+
+        showDailyAnswerBtn.addEventListener("click", function () {
+            if (currentIndex === -1) {
+                alert("請先開始今日練習！");
+                return;
+            }
+
+            dailyAnswer.classList.remove("hidden");
+        });
+
+        dailyRememberBtn.addEventListener("click", function () {
+            finishCurrentWord(false);
+        });
+
+        dailyForgetBtn.addEventListener("click", function () {
+            finishCurrentWord(true);
+        });
+
+        retryDailyBtn.addEventListener("click", function () {
+            if (todayWords.length === 0) {
+                alert("今天還沒有單字可以重考，請先開始今日練習！");
+                return;
+            }
+
+            const check = confirm("確定要重考今天這 10 個單字嗎？進度會歸零。");
+
+            if (!check) {
+                return;
+            }
+
+            todayWords.forEach(function (item) {
+                item.isDone = false;
+            });
+
+            currentIndex = -1;
+
+            saveTodayWords();
+            renderDailyList();
+            updateProgress();
+            nextDailyWord();
+        });
+
+        function checkDailyWord(id, checked) {
+            const todayItem = todayWords.find(function (item) {
+                return item.id === id;
+            });
+
+            if (!todayItem) {
+                return;
+            }
+
+            todayItem.isDone = checked;
+            todayItem.dailyStatus = checked ? "remembered" : "";
+
+            const vocab = vocabList.find(function (item) {
+                return item.id === id;
+            });
+
+            if (vocab) {
+                vocab.lastReviewDate = checked ? getTodayText() : "";
+                vocab.reviewStatus = checked ? "remembered" : "";
+                saveVocabList();
+            }
+
+            saveTodayWords();
+            renderDailyList();
+            updateProgress();
+        }
+        function showModalQuizWord() {
+            currentIndex = todayWords.findIndex(function (item) {
+                return item.isDone === false;
+            });
+
+            if (currentIndex === -1) {
+                modalQuizWord.textContent = "今天 10 個單字已經測驗完成！";
+                modalQuizAnswer.textContent = "很棒，今天完成了。";
+                modalQuizAnswer.classList.remove("hidden");
+                return;
+            }
+
+            const item = todayWords[currentIndex];
+            quizProgress.textContent = "第 " + (currentIndex + 1) + " / " + todayWords.length + " 題";
+
+            modalQuizWord.textContent = item.word;
+            modalQuizAnswer.textContent =
+                "中文：" + item.meaning +
+                "　詞性：" + (item.partOfSpeech || "未設定") +
+                "　例句：" + (item.example || "尚未填寫");
+
+            modalQuizAnswer.classList.add("hidden");
+        }
+
+        startQuizModalBtn.addEventListener("click", function () {
+            if (todayWords.length === 0) {
+                createTodayWords();
+            }
+
+            dailyQuizModal.classList.remove("hidden");
+            showModalQuizWord();
+        });
+
+        closeDailyQuizBtn.addEventListener("click", function () {
+            dailyQuizModal.classList.add("hidden");
+        });
+
+        modalShowAnswerBtn.addEventListener("click", function () {
+            modalQuizAnswer.classList.remove("hidden");
+        });
+
+        modalCorrectBtn.addEventListener("click", function () {
+            finishCurrentWord(false);
+            showModalQuizWord();
+        });
+
+        modalWrongBtn.addEventListener("click", function () {
+            finishCurrentWord(true);
+            showModalQuizWord();
+        });
+
+        loadData();
+    </script>
+</body>
+</html>
