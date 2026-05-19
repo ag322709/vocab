@@ -1,0 +1,1063 @@
+﻿<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <title>單字列表</title>
+
+    <!-- 連接 CSS 檔案 -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- 模式選擇首頁 -->
+    <div id="modePage" class="mode-page">
+        <div class="mode-card">
+            <h1>背單字小工具</h1>
+            <p>請選擇你想練習的單字類型</p>
+
+            <div class="mode-buttons">
+                <button onclick="selectMode('ielts')">雅思 IELTS 單字</button>
+                <button onclick="selectMode('toeic')">多益 TOEIC 單字</button>
+            </div>
+        </div>
+    </div>
+    <div id="mainApp" class="app hidden">
+        <h1 id="appTitle">背單字小工具</h1>
+        <p class="subtitle">新增單字、分類整理，並用背單字模式複習。</p>
+
+        <button id="backModeBtn" class="back-mode-btn">返回選擇模式</button>
+        <a href="word-list.html" id="goWordListBtn" class="btn">進入單字列表</a>
+        <a href="index.html" id="goHomeBtn" class="btn hidden">返回首頁</a>
+
+        <!-- 新增單字區 -->
+        <section id="addWordSection" class="card">
+            <h2>新增單字</h2>
+
+            <div class="form-row">
+                <label>英文單字</label>
+                <input type="text" id="wordInput" placeholder="例如：apple">
+            </div>
+
+            <div class="form-row">
+                <label>中文意思</label>
+                <input type="text" id="meaningInput" placeholder="例如：蘋果">
+            </div>
+
+            <div class="form-row">
+                <label>詞性</label>
+                <select id="partOfSpeechInput">
+                    <option value="名詞 noun">名詞 noun</option>
+                    <option value="動詞 verb">動詞 verb</option>
+                    <option value="形容詞 adjective">形容詞 adjective</option>
+                    <option value="副詞 adverb">副詞 adverb</option>
+                    <option value="片語 phrase">片語 phrase</option>
+                    <option value="其他 other">其他 other</option>
+                </select>
+            </div>
+
+            <div class="form-row">
+                <label>例句</label>
+                <input type="text" id="exampleInput" placeholder="例如：I eat an apple.">
+            </div>
+
+            <div class="form-row">
+                <label>分類</label>
+
+                <div class="category-row">
+                    <select id="categoryInput">
+                        <option value="生活">生活</option>
+                        <option value="工作">工作</option>
+                        <option value="考試">考試</option>
+                        <option value="旅遊">旅遊</option>
+                        <option value="其他">其他</option>
+                        <option value="新增分類">＋ 新增分類</option>
+                    </select>
+
+                    <button type="button" id="deleteCategoryBtn" class="category-x-btn" title="刪除目前分類">
+                        ×
+                    </button>
+                </div>
+            </div>
+
+            <button id="addBtn">新增單字</button>
+        </section>
+
+        <!-- 搜尋區 -->
+
+        <section id="searchSection" class="card">
+            <h2>搜尋單字</h2>
+
+            <div class="search-row">
+                <div class="form-row search-input-box">
+                    <label>搜尋</label>
+                    <input type="text" id="searchInput" placeholder="輸入英文或中文">
+                </div>
+
+                <div class="form-row search-category-box">
+                    <label>類型</label>
+                    <select id="searchCategoryInput">
+                        <option value="">全部</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="filter-buttons">
+                <button id="showAllBtn">全部單字</button>
+                <button id="showStarBtn">收藏單字</button>
+                <button id="deleteAllBtn" class="danger-btn">全部刪除</button>
+            </div>
+
+            <div class="excel-buttons">
+                <button id="exportExcelBtn">匯出 Excel</button>
+
+                <label class="import-label">
+                    匯入 Excel
+                    <input type="file" id="importExcelInput" accept=".xlsx,.xls" hidden>
+                </label>
+            </div>
+        </section>
+
+        <!-- 單字列表區 -->
+        <section id="wordListSection" class="card">
+            <h2>單字列表</h2>
+
+            <div id="wordList" class="word-list">
+                <!-- 單字會顯示在這裡 -->
+            </div>
+            <div id="pagination" class="pagination"></div>
+        </section>
+
+        <!-- 背單字區 -->
+        <!-- 背單字區 -->
+        <section id="quizSection" class="card">
+            <h2>背單字模式</h2>
+
+            <div class="quiz-box">
+                <p>準備好後，按下按鈕開始測驗。</p>
+                <button id="startQuizBtn">開始背單字</button>
+            </div>
+        </section>
+
+        <!-- 背單字彈窗 -->
+        <div id="quizModal" class="modal hidden">
+            <div class="modal-content">
+                <button id="closeQuizBtn" class="close-btn">×</button>
+
+                <h2>單字小考</h2>
+
+                <p class="quiz-label">請想想這個單字的中文意思：</p>
+
+                <p id="quizWord" class="quiz-word">目前還沒有題目</p>
+                <p id="quizAnswer" class="quiz-answer hidden">答案會顯示在這裡</p>
+
+                <div class="button-group">
+                    <button id="showAnswerBtn">顯示答案</button>
+                    <button id="rememberBtn">我記得</button>
+                    <button id="forgetBtn">我忘了</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+    <script>
+        // ===============================
+        // 1. 取得畫面上的元素
+        // ===============================
+
+        const modePage = document.getElementById("modePage");
+        const mainApp = document.getElementById("mainApp");
+        const appTitle = document.getElementById("appTitle");
+        const backModeBtn = document.getElementById("backModeBtn");
+        const wordInput = document.getElementById("wordInput");
+        const meaningInput = document.getElementById("meaningInput");
+        const partOfSpeechInput = document.getElementById("partOfSpeechInput");
+        const exampleInput = document.getElementById("exampleInput");
+        const categoryInput = document.getElementById("categoryInput");
+        const deleteCategoryBtn = document.getElementById("deleteCategoryBtn");
+
+        const addBtn = document.getElementById("addBtn");
+        const searchInput = document.getElementById("searchInput");
+        const searchCategoryInput = document.getElementById("searchCategoryInput");
+        const wordList = document.getElementById("wordList");
+        const pagination = document.getElementById("pagination");
+        const showAllBtn = document.getElementById("showAllBtn");
+        const showStarBtn = document.getElementById("showStarBtn");
+        const deleteAllBtn = document.getElementById("deleteAllBtn");
+        const exportExcelBtn = document.getElementById("exportExcelBtn");
+        const importExcelInput = document.getElementById("importExcelInput");
+
+        const quizWord = document.getElementById("quizWord");
+        const quizAnswer = document.getElementById("quizAnswer");
+        const quizModal = document.getElementById("quizModal");
+        const closeQuizBtn = document.getElementById("closeQuizBtn");
+
+        const startQuizBtn = document.getElementById("startQuizBtn");
+        const showAnswerBtn = document.getElementById("showAnswerBtn");
+        const rememberBtn = document.getElementById("rememberBtn");
+        const forgetBtn = document.getElementById("forgetBtn");
+
+
+
+        // ===============================
+        // 2. 準備資料
+        // ===============================
+
+        let currentMode = localStorage.getItem("currentMode") || "";
+
+        let vocabList = [];
+        let categoryList = [];
+
+        const defaultCategories = [
+            "生活",
+            "工作",
+            "考試",
+            "旅遊",
+            "其他"
+        ];
+
+        let currentQuizIndex = -1;
+        let filterMode = "all";
+        let editingId = null;
+        let hasMarkedForget = false;
+
+        let currentPage = 1;
+        let pageSize = 10;
+
+        function getVocabStorageKey() {
+            return "vocabList_" + currentMode;
+        }
+
+        function getCategoryStorageKey() {
+            return "categoryList_" + currentMode;
+        }
+
+        function getModeName() {
+            if (currentMode === "ielts") {
+                return "雅思 IELTS 單字";
+            }
+
+            if (currentMode === "toeic") {
+                return "多益 TOEIC 單字";
+            }
+
+            return "";
+        }
+
+        function selectMode(mode) {
+            currentMode = mode;
+            localStorage.setItem("currentMode", currentMode);
+
+            vocabList = JSON.parse(localStorage.getItem(getVocabStorageKey())) || [];
+
+            categoryList = JSON.parse(localStorage.getItem(getCategoryStorageKey())) || defaultCategories;
+
+            modePage.classList.add("hidden");
+            mainApp.classList.remove("hidden");
+
+            appTitle.textContent = "背單字小工具 - " + getModeName();
+
+            editingId = null;
+            filterMode = "all";
+            currentQuizIndex = -1;
+
+            renderCategoryOptions();
+            renderSearchCategoryOptions();
+            renderWordList();
+        }
+        backModeBtn.addEventListener("click", function () {
+            mainApp.classList.add("hidden");
+            modePage.classList.remove("hidden");
+
+            quizModal.classList.add("hidden");
+            currentQuizIndex = -1;
+        });
+        function renderSearchCategoryOptions() {
+            searchCategoryInput.innerHTML = "";
+
+            const allOption = document.createElement("option");
+            allOption.value = "";
+            allOption.textContent = "全部";
+            searchCategoryInput.appendChild(allOption);
+
+            categoryList.forEach(function (category) {
+                const option = document.createElement("option");
+                option.value = category;
+                option.textContent = category;
+                searchCategoryInput.appendChild(option);
+            });
+        }
+
+
+        // ===============================
+        // 3. 存資料到 localStorage
+        // ===============================
+
+        function saveVocabList() {
+            localStorage.setItem(getVocabStorageKey(), JSON.stringify(vocabList));
+        }
+
+        function saveCategoryList() {
+            localStorage.setItem(getCategoryStorageKey(), JSON.stringify(categoryList));
+        }
+
+
+        // ===============================
+        // 4. 載入分類下拉選單
+        // ===============================
+
+        function renderCategoryOptions() {
+            categoryInput.innerHTML = "";
+
+            categoryList.forEach(function (category) {
+                const option = document.createElement("option");
+                option.value = category;
+                option.textContent = category;
+                categoryInput.appendChild(option);
+            });
+
+            const addOption = document.createElement("option");
+            addOption.value = "新增分類";
+            addOption.textContent = "＋ 新增分類";
+            categoryInput.appendChild(addOption);
+        }
+
+
+        // ===============================
+        // 5. 新增分類
+        // ===============================
+
+        categoryInput.addEventListener("change", function () {
+            if (categoryInput.value === "新增分類") {
+                const newCategory = prompt("請輸入新的分類名稱");
+
+                if (newCategory !== null && newCategory.trim() !== "") {
+                    const cleanCategory = newCategory.trim();
+
+                    if (!categoryList.includes(cleanCategory)) {
+                        categoryList.push(cleanCategory);
+                        saveCategoryList();
+                        renderCategoryOptions();
+                        renderSearchCategoryOptions();
+                    }
+
+                    categoryInput.value = cleanCategory;
+                } else {
+                    categoryInput.value = categoryList[0];
+                }
+            }
+        });
+        deleteCategoryBtn.addEventListener("click", function () {
+            const deleteCategory = categoryInput.value;
+
+            if (deleteCategory === "新增分類") {
+                alert("這個選項不能刪除！");
+                return;
+            }
+
+            if (deleteCategory === "") {
+                alert("請先選擇要刪除的分類！");
+                return;
+            }
+
+            const check = confirm(
+                "確定要刪除分類「" + deleteCategory + "」嗎？\n" +
+                "使用這個分類的單字會改成「未分類」。"
+            );
+
+            if (!check) {
+                return;
+            }
+
+            if (!categoryList.includes("未分類")) {
+                categoryList.push("未分類");
+            }
+
+            vocabList.forEach(function (item) {
+                if (item.category === deleteCategory) {
+                    item.category = "未分類";
+                }
+            });
+
+            categoryList = categoryList.filter(function (category) {
+                return category !== deleteCategory;
+            });
+
+            saveCategoryList();
+            saveVocabList();
+
+            renderCategoryOptions();
+            renderSearchCategoryOptions();
+
+            categoryInput.value = "未分類";
+            searchCategoryInput.value = "";
+
+            renderWordList();
+
+            alert("分類「" + deleteCategory + "」已刪除！");
+        });
+
+
+        // ===============================
+        // 6. 新增單字
+        // ===============================
+
+        addBtn.addEventListener("click", function () {
+            const word = wordInput.value.trim();
+            const meaning = meaningInput.value.trim();
+            const partOfSpeech = partOfSpeechInput.value;
+            const example = exampleInput.value.trim();
+            const category = categoryInput.value;
+
+            if (word === "" || meaning === "") {
+                alert("英文單字和中文意思一定要填喔！");
+                return;
+            }
+
+            const vocab = {
+                id: Date.now(),
+                word: word,
+                meaning: meaning,
+                partOfSpeech: partOfSpeech,
+                example: example,
+                category: category,
+                isStar: false,
+                wrongCount: 0
+            };
+
+            vocabList.push(vocab);
+            saveVocabList();
+            renderWordList();
+
+            wordInput.value = "";
+            meaningInput.value = "";
+            partOfSpeechInput.value = "名詞 noun";
+            exampleInput.value = "";
+            categoryInput.value = categoryList[0];
+        });
+
+
+        // ===============================
+        // 7. 顯示單字列表
+        // ===============================
+
+        function renderWordList() {
+            const keyword = searchInput.value.trim().toLowerCase();
+            const searchCategory = searchCategoryInput.value;
+
+            wordList.innerHTML = "";
+
+            const filteredList = vocabList.filter(function (item) {
+                const matchKeyword =
+                    item.word.toLowerCase().includes(keyword) ||
+                    item.meaning.includes(keyword) ||
+                    item.category.includes(keyword) ||
+                    (item.partOfSpeech || "").includes(keyword);
+
+                const matchCategory =
+                    searchCategory === "" || item.category === searchCategory;
+
+                const matchStar =
+                    filterMode === "all" || item.isStar === true;
+
+                return matchKeyword && matchCategory && matchStar;
+            });
+
+            if (filteredList.length === 0) {
+                wordList.innerHTML = "<p class='empty-text'>目前沒有單字</p>";
+                pagination.innerHTML = "";
+                return;
+            }
+
+            const totalPages = Math.ceil(filteredList.length / pageSize);
+
+            if (currentPage > totalPages) {
+                currentPage = totalPages;
+            }
+
+            const startIndex = (currentPage - 1) * pageSize;
+            const endIndex = startIndex + pageSize;
+            const pageList = filteredList.slice(startIndex, endIndex);
+
+            renderPagination(totalPages);
+
+            pageList.forEach(function (item) {
+                const div = document.createElement("div");
+                div.className = "word-item";
+
+                // 如果這筆正在編輯，就顯示輸入框
+                if (editingId === item.id) {
+                    let categoryOptionsHtml = "";
+
+                    categoryList.forEach(function (category) {
+                        categoryOptionsHtml += `
+                                <option value="${category}" ${item.category === category ? "selected" : ""}>
+                                    ${category}
+                                </option>
+                            `;
+                    });
+
+                    div.innerHTML = `
+                            <div class="word-info edit-area">
+                                <div class="form-row">
+                                    <label>英文單字</label>
+                                    <input type="text" id="editWord_${item.id}" value="${item.word}">
+                                </div>
+
+                                <div class="form-row">
+                                 <label>中文意思</label>
+                                  <input type="text" id="editMeaning_${item.id}" value="${item.meaning}">
+                                 </div>
+
+                                 <div class="form-row">
+                                     <label>詞性</label>
+                                     <select id="editPartOfSpeech_${item.id}">
+                                         <option value="名詞 noun" ${item.partOfSpeech === "名詞 noun" ? "selected" : ""}>名詞 noun</option>
+                                         <option value="動詞 verb" ${item.partOfSpeech === "動詞 verb" ? "selected" : ""}>動詞 verb</option>
+                                         <option value="形容詞 adjective" ${item.partOfSpeech === "形容詞 adjective" ? "selected" : ""}>形容詞 adjective</option>
+                                         <option value="副詞 adverb" ${item.partOfSpeech === "副詞 adverb" ? "selected" : ""}>副詞 adverb</option>
+                                         <option value="片語 phrase" ${item.partOfSpeech === "片語 phrase" ? "selected" : ""}>片語 phrase</option>
+                                         <option value="其他 other" ${item.partOfSpeech === "其他 other" ? "selected" : ""}>其他 other</option>
+                                     </select>
+                                 </div>
+
+                                <div class="form-row">
+                                    <label>例句</label>
+                                    <input type="text" id="editExample_${item.id}" value="${item.example || ""}">
+                                </div>
+
+                                <div class="form-row">
+                                    <label>分類</label>
+                                    <select id="editCategory_${item.id}">
+                                        ${categoryOptionsHtml}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="word-actions">
+                                <button onclick="saveEditWord(${item.id})">儲存</button>
+                                <button onclick="cancelEditWord()">取消</button>
+                            </div>
+                        `;
+                } else {
+                    // 平常狀態
+                    div.innerHTML = `
+                            <div class="word-info">
+                                <h3>${item.word}</h3>
+                                <p>中文：${item.meaning}</p>
+                                <p>詞性：${item.partOfSpeech || "未設定"}</p>
+                                <p>例句：${item.example || "尚未填寫"}</p>
+                                <p>分類：${item.category}</p>
+                                <p>忘記次數：${item.wrongCount}</p>
+                            </div>
+
+                            <div class="word-actions">
+                                <button onclick="toggleStar(${item.id})">
+                                    ${item.isStar ? "★ 已收藏" : "☆ 收藏"}
+                                </button>
+
+                                <button onclick="startEditWord(${item.id})">
+                                    編輯
+                                </button>
+
+                                <button onclick="deleteWord(${item.id})">
+                                    刪除
+                                </button>
+                            </div>
+                        `;
+                }
+
+                wordList.appendChild(div);
+            });
+        }
+        function renderPagination(totalPages) {
+            pagination.innerHTML = "";
+
+            if (totalPages <= 1) {
+                return;
+            }
+
+            const pageGroupSize = 10;
+
+            const currentGroup = Math.ceil(currentPage / pageGroupSize);
+            const startPage = (currentGroup - 1) * pageGroupSize + 1;
+            let endPage = currentGroup * pageGroupSize;
+
+            if (endPage > totalPages) {
+                endPage = totalPages;
+            }
+
+            // 第一頁
+            const firstBtn = document.createElement("button");
+            firstBtn.textContent = "第一頁";
+            firstBtn.disabled = currentPage === 1;
+            firstBtn.onclick = function () {
+                currentPage = 1;
+                renderWordList();
+            };
+            pagination.appendChild(firstBtn);
+
+            // 上一頁
+            const prevBtn = document.createElement("button");
+            prevBtn.textContent = "上一頁";
+            prevBtn.disabled = currentPage === 1;
+            prevBtn.onclick = function () {
+                currentPage--;
+                renderWordList();
+            };
+            pagination.appendChild(prevBtn);
+
+            // 上一組
+            const prevGroupBtn = document.createElement("button");
+            prevGroupBtn.textContent = "前10頁";
+            prevGroupBtn.disabled = startPage === 1;
+            prevGroupBtn.onclick = function () {
+                currentPage = startPage - 1;
+                renderWordList();
+            };
+            pagination.appendChild(prevGroupBtn);
+
+            // 頁碼：一次只顯示 10 個
+            for (let i = startPage; i <= endPage; i++) {
+                const pageBtn = document.createElement("button");
+                pageBtn.textContent = i;
+
+                if (i === currentPage) {
+                    pageBtn.classList.add("active-page");
+                }
+
+                pageBtn.onclick = function () {
+                    currentPage = i;
+                    renderWordList();
+                };
+
+                pagination.appendChild(pageBtn);
+            }
+
+            // 下一組
+            const nextGroupBtn = document.createElement("button");
+            nextGroupBtn.textContent = "後10頁";
+            nextGroupBtn.disabled = endPage === totalPages;
+            nextGroupBtn.onclick = function () {
+                currentPage = endPage + 1;
+                renderWordList();
+            };
+            pagination.appendChild(nextGroupBtn);
+
+            // 下一頁
+            const nextBtn = document.createElement("button");
+            nextBtn.textContent = "下一頁";
+            nextBtn.disabled = currentPage === totalPages;
+            nextBtn.onclick = function () {
+                currentPage++;
+                renderWordList();
+            };
+            pagination.appendChild(nextBtn);
+
+            // 最後一頁
+            const lastBtn = document.createElement("button");
+            lastBtn.textContent = "最後一頁";
+            lastBtn.disabled = currentPage === totalPages;
+            lastBtn.onclick = function () {
+                currentPage = totalPages;
+                renderWordList();
+            };
+            pagination.appendChild(lastBtn);
+        }
+
+        // ===============================
+        // 8. 搜尋單字 刪除單字
+        // ===============================
+
+        searchInput.addEventListener("input", function () {
+            currentPage = 1;
+            renderWordList();
+        });
+        showStarBtn.addEventListener("click", function () {
+            filterMode = "star";
+            currentPage = 1;
+            renderWordList();
+        });
+
+        showStarBtn.addEventListener("click", function () {
+            filterMode = "star";
+            renderWordList();
+        });
+        searchCategoryInput.addEventListener("change", function () {
+            currentPage = 1;
+            renderWordList();
+        });
+        deleteAllBtn.addEventListener("click", function () {
+            if (vocabList.length === 0) {
+                alert("目前沒有單字可以刪除！");
+                return;
+            }
+
+            const check = confirm("確定要刪除目前這個模式的全部單字嗎？刪除後無法復原。");
+
+            if (!check) {
+                return;
+            }
+
+            vocabList = [];
+
+            saveVocabList();
+            renderWordList();
+
+            quizWord.textContent = "目前還沒有題目";
+            quizAnswer.textContent = "答案會顯示在這裡";
+            quizAnswer.classList.add("hidden");
+            quizModal.classList.add("hidden");
+
+            currentQuizIndex = -1;
+            editingId = null;
+
+            alert("已全部刪除完成！");
+        });
+
+        // ===============================
+        // 9. 收藏 / 取消收藏
+        // ===============================
+
+        function toggleStar(id) {
+            const item = vocabList.find(function (vocab) {
+                return vocab.id === id;
+            });
+
+            if (item) {
+                item.isStar = !item.isStar;
+                saveVocabList();
+                renderWordList();
+            }
+        }
+
+
+        // ===============================
+        // 10. 刪除單字
+        // ===============================
+
+        function deleteWord(id) {
+            const check = confirm("確定要刪除這個單字嗎？");
+
+            if (!check) {
+                return;
+            }
+
+            vocabList = vocabList.filter(function (item) {
+                return item.id !== id;
+            });
+
+            saveVocabList();
+            renderWordList();
+
+            quizWord.textContent = "目前還沒有題目";
+            quizAnswer.textContent = "答案會顯示在這裡";
+            quizAnswer.classList.add("hidden");
+            currentQuizIndex = -1;
+        }
+
+
+        // ===============================
+        // 11. 開始背單字
+        // ===============================
+
+        startQuizBtn.addEventListener("click", function () {
+            if (vocabList.length === 0) {
+                alert("目前還沒有單字，請先新增單字！");
+                return;
+            }
+
+            quizModal.classList.remove("hidden");
+            nextQuiz();
+        });
+        closeQuizBtn.addEventListener("click", function () {
+            quizModal.classList.add("hidden");
+        });
+        quizModal.addEventListener("click", function (event) {
+            if (event.target === quizModal) {
+                quizModal.classList.add("hidden");
+            }
+        });
+
+
+        // ===============================
+        // 12. 產生下一題
+        // ===============================
+
+        function nextQuiz() {
+            if (vocabList.length === 0) {
+                quizWord.textContent = "目前還沒有題目";
+                quizAnswer.textContent = "答案會顯示在這裡";
+                quizAnswer.classList.add("hidden");
+                currentQuizIndex = -1;
+                return;
+            }
+
+            currentQuizIndex = Math.floor(Math.random() * vocabList.length);
+            hasMarkedForget = false;
+
+            const currentItem = vocabList[currentQuizIndex];
+
+            quizWord.textContent = currentItem.word;
+            quizAnswer.textContent = `中文：${currentItem.meaning}　詞性：${currentItem.partOfSpeech || "未設定"}　例句：${currentItem.example || "尚未填寫"}`;
+            quizAnswer.classList.add("hidden");
+
+            forgetBtn.textContent = "我忘了";
+        }
+
+
+
+        // ===============================
+        // 13. 顯示答案
+        // ===============================
+
+        showAnswerBtn.addEventListener("click", function () {
+            if (currentQuizIndex === -1) {
+                alert("請先按「開始背單字」！");
+                return;
+            }
+
+            quizAnswer.classList.remove("hidden");
+        });
+
+
+        // ===============================
+        // 14. 我記得
+        // ===============================
+
+        rememberBtn.addEventListener("click", function () {
+            if (currentQuizIndex === -1) {
+                alert("請先按「開始背單字」！");
+                return;
+            }
+
+            nextQuiz();
+        });
+
+
+        // ===============================
+        // 15. 我忘了
+        // ===============================
+
+        forgetBtn.addEventListener("click", function () {
+            if (currentQuizIndex === -1) {
+                alert("請先按「開始背單字」！");
+                return;
+            }
+
+            if (hasMarkedForget) {
+                nextQuiz();
+                return;
+            }
+
+            vocabList[currentQuizIndex].wrongCount += 1;
+            hasMarkedForget = true;
+
+            saveVocabList();
+            renderWordList();
+
+            quizAnswer.classList.remove("hidden");
+            forgetBtn.textContent = "下一題";
+        });
+
+
+
+        // ===============================
+        // 16. 頁面一打開就先執行
+        // ===============================
+
+        if (currentMode !== "") {
+            selectMode(currentMode);
+        }
+
+        //
+        //
+        //
+        function startEditWord(id) {
+            editingId = id;
+            renderWordList();
+        }
+
+        function cancelEditWord() {
+            editingId = null;
+            renderWordList();
+        }
+
+        function saveEditWord(id) {
+            const item = vocabList.find(function (vocab) {
+                return vocab.id === id;
+            });
+
+            if (!item) {
+                return;
+            }
+
+            const newWord = document.getElementById("editWord_" + id).value.trim();
+            const newMeaning = document.getElementById("editMeaning_" + id).value.trim();
+            const newPartOfSpeech = document.getElementById("editPartOfSpeech_" + id).value;
+            const newExample = document.getElementById("editExample_" + id).value.trim();
+            const newCategory = document.getElementById("editCategory_" + id).value;
+
+            if (newWord === "" || newMeaning === "") {
+                alert("英文單字和中文意思不能空白喔！");
+                return;
+            }
+
+            item.word = newWord;
+            item.meaning = newMeaning;
+            item.partOfSpeech = newPartOfSpeech;
+            item.example = newExample;
+            item.category = newCategory;
+
+            saveVocabList();
+
+            editingId = null;
+            renderWordList();
+        }
+        //
+        //
+        //
+        // ===============================
+        // 匯出 Excel
+        // ===============================
+
+        exportExcelBtn.addEventListener("click", function () {
+            if (vocabList.length === 0) {
+                alert("目前沒有單字可以匯出！");
+                return;
+            }
+
+            const exportData = vocabList.map(function (item) {
+                return {
+                    word: item.word,
+                    meaning: item.meaning,
+                    partOfSpeech: item.partOfSpeech || "",
+                    example: item.example,
+                    category: item.category,
+                    isStar: item.isStar ? "Y" : "N",
+                    wrongCount: item.wrongCount
+                };
+            });
+
+            const worksheet = XLSX.utils.json_to_sheet(exportData);
+            const workbook = XLSX.utils.book_new();
+
+            XLSX.utils.book_append_sheet(workbook, worksheet, "單字表");
+
+            XLSX.writeFile(workbook, getModeName() + "_單字表.xlsx");
+        });
+        //
+        //
+        //
+        // ===============================
+        // 匯入 Excel
+        // ===============================
+
+        importExcelInput.addEventListener("change", function (event) {
+            const file = event.target.files[0];
+
+            if (!file) {
+                return;
+            }
+
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: "array" });
+
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+
+                const rows = XLSX.utils.sheet_to_json(worksheet);
+
+                if (rows.length === 0) {
+                    alert("Excel 裡面沒有資料！");
+                    return;
+                }
+
+                let importCount = 0;
+
+                rows.forEach(function (row) {
+                    const word = String(row.word || "").trim();
+                    const meaning = String(row.meaning || "").trim();
+                    const partOfSpeech = String(row.partOfSpeech || "未設定").trim();
+                    const example = String(row.example || "").trim();
+                    const category = String(row.category || "未分類").trim();
+
+                    if (word === "" || meaning === "") {
+                        return;
+                    }
+
+                    const vocab = {
+                        id: Date.now() + Math.floor(Math.random() * 100000),
+                        word: word,
+                        meaning: meaning,
+                        partOfSpeech: partOfSpeech,
+                        example: example,
+                        category: category,
+                        isStar: row.isStar === "Y",
+                        wrongCount: Number(row.wrongCount) || 0
+                    };
+
+                    vocabList.push(vocab);
+
+                    if (!categoryList.includes(category)) {
+                        categoryList.push(category);
+                    }
+
+                    importCount++;
+                });
+
+                saveVocabList();
+                saveCategoryList();
+
+                renderCategoryOptions();
+                renderSearchCategoryOptions();
+                renderWordList();
+
+                importExcelInput.value = "";
+
+                alert("匯入完成，共匯入 " + importCount + " 筆單字！");
+            };
+
+            reader.readAsArrayBuffer(file);
+        });
+        // ===============================
+        // 17. 控制 index.html / word-list.html 顯示不同區塊
+        // ===============================
+
+        const isWordListPage = window.location.pathname.includes("word-list.html");
+
+        const addWordSection = document.getElementById("addWordSection");
+        const searchSection = document.getElementById("searchSection");
+        const wordListSection = document.getElementById("wordListSection");
+        const quizSection = document.getElementById("quizSection");
+        const goWordListBtn = document.getElementById("goWordListBtn");
+        const goHomeBtn = document.getElementById("goHomeBtn");
+
+        if (isWordListPage) {
+            addWordSection.classList.add("hidden");
+            quizSection.classList.add("hidden");
+
+            searchSection.classList.remove("hidden");
+            wordListSection.classList.remove("hidden");
+
+            goWordListBtn.classList.add("hidden");
+            goHomeBtn.classList.remove("hidden");
+
+            appTitle.textContent = "單字列表 - " + getModeName();
+        } else {
+            searchSection.classList.add("hidden");
+            wordListSection.classList.add("hidden");
+
+            addWordSection.classList.remove("hidden");
+            quizSection.classList.remove("hidden");
+
+            goWordListBtn.classList.remove("hidden");
+            goHomeBtn.classList.add("hidden");
+        }
+    </script>
+
+</body>
+</html>
